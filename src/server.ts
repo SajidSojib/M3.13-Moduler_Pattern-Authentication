@@ -3,32 +3,30 @@ import express, { Request, Response } from "express";
 import path from "path";
 import { Pool } from "pg";
 
-dotenv.config({path: path.join(process.cwd(),'.env')})
+dotenv.config({ path: path.join(process.cwd(), ".env") });
 const app = express();
 const port = 5000;
 
-
 // middlewires
-app.use(express.json())
-
+app.use(express.json());
 
 // postgress connection
 const pool = new Pool({
   connectionString: process.env.CONNECTION_STRING,
   ssl: { rejectUnauthorized: false },
 });
-const initDB = async() => {
-    await pool.query(`
+const initDB = async () => {
+  await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(25) NOT NULL,
-            email VARCHAR(50) NOT NULL,
+            email VARCHAR(50) NOT NULL UNIQUE,
             age INTEGER,
             address TEXT,
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`);
-    await pool.query(`
+  await pool.query(`
         CREATE TABLE IF NOT EXISTS posts (
             id SERIAL PRIMARY KEY,
             user_id INT REFERENCES users(id) ON DELETE CASCADE,
@@ -38,37 +36,94 @@ const initDB = async() => {
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`);
-    console.log('postgress connection done');
-}
+  console.log("postgress connection done");
+};
 initDB();
 
-
-
-app.get("/", async(req:Request, res:Response) => {
+app.get("/", async (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/users", async(req:Request, res:Response)=>{
-    try {
-        const result = await pool.query("SELECT * FROM users");
-        res.status(200).json({ success: true, data: result.rows });
-    } catch (error:any) {
-        res.status(500).json({ success: false, message: error?.message });
-    }
-})
+app.get("/users", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query("SELECT * FROM users");
+    res.status(200).json({ success: true, data: result.rows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error?.message });
+  }
+});
 
-app.post("/users", async(req:Request, res:Response) => {
-    try {
-        const { name, email, age, address } = req.body;
-        const result = await pool.query(
-          "INSERT INTO users (name, email, age, address) VALUES ($1, $2, $3, $4) RETURNING *",
-          [name, email, age, address]
-        );
-        res.status(201).json({ success: true, data: result.rows[0] });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error?.message });
+app.get("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ success: false, massage: "user not found" });
+    } else {
+      res.status(202).json({ success: true, data: result.rows[0] });
     }
-})
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error?.message });
+  }
+});
+
+app.post("/users", async (req: Request, res: Response) => {
+  try {
+    const { name, email, age, address } = req.body;
+    const result = await pool.query(
+      "INSERT INTO users (name, email, age, address) VALUES ($1, $2, $3, $4) RETURNING *",
+      [name, email, age, address]
+    );
+    res
+      .status(201)
+      .json({ success: true, massage: "user added", data: result.rows[0] });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error?.message });
+  }
+});
+
+app.put("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, email, age, address } = req.body;
+    const result = await pool.query(
+      "UPDATE users SET name = $1, email = $2, age = $3, address = $4 WHERE id = $5 RETURNING *",
+      [name, email, age, address, id]
+    );
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ success: false, massage: "user not found" });
+    } else {
+      res
+        .status(202)
+        .json({
+          success: true,
+          massage: "user updated successfully",
+          data: result.rows[0],
+        });
+    }
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error?.message });
+  }
+});
+
+app.delete("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [id]);
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ success: false, massage: "user not found" });
+    } else {
+      res
+        .status(202)
+        .json({ success: true, massage: "user deleted", data: result.rows[0] });
+    }
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error?.message });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
