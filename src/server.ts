@@ -20,29 +20,29 @@ app.get("/", logger, async (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/users", async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query("SELECT * FROM users");
-    res.status(200).json({ success: true, data: result.rows });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error?.message });
-  }
-});
+// app.get("/users", async (req: Request, res: Response) => {
+//   try {
+//     const result = await pool.query("SELECT * FROM users");
+//     res.status(200).json({ success: true, data: result.rows });
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, message: error?.message });
+//   }
+// });
 
-app.get("/users/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+// app.get("/users/:id", async (req: Request, res: Response) => {
+//   try {
+//     const { id } = req.params;
+//     const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
 
-    if (result.rowCount === 0) {
-      res.status(404).json({ success: false, massage: "user not found" });
-    } else {
-      res.status(202).json({ success: true, data: result.rows[0] });
-    }
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error?.message });
-  }
-});
+//     if (result.rowCount === 0) {
+//       res.status(404).json({ success: false, massage: "user not found" });
+//     } else {
+//       res.status(202).json({ success: true, data: result.rows[0] });
+//     }
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, message: error?.message });
+//   }
+// });
 
 // app.post("/users", async (req: Request, res: Response) => {
 //   try {
@@ -59,65 +59,65 @@ app.get("/users/:id", async (req: Request, res: Response) => {
 //   }
 // });
 
-app.put("/users/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { name, email, age, address } = req.body;
-    const result = await pool.query(
-      "UPDATE users SET name = $1, email = $2, age = $3, address = $4 WHERE id = $5 RETURNING *",
-      [name, email, age, address, id]
-    );
+// app.put("/users/:id", async (req: Request, res: Response) => {
+//   try {
+//     const { id } = req.params;
+//     const { name, email, age, address } = req.body;
+//     const result = await pool.query(
+//       "UPDATE users SET name = $1, email = $2, age = $3, address = $4 WHERE id = $5 RETURNING *",
+//       [name, email, age, address, id]
+//     );
 
-    if (result.rowCount === 0) {
-      res.status(404).json({ success: false, massage: "user not found" });
-    } else {
-      res.status(202).json({
-        success: true,
-        massage: "user updated successfully",
-        data: result.rows[0],
-      });
-    }
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error?.message });
-  }
-});
+//     if (result.rowCount === 0) {
+//       res.status(404).json({ success: false, massage: "user not found" });
+//     } else {
+//       res.status(202).json({
+//         success: true,
+//         massage: "user updated successfully",
+//         data: result.rows[0],
+//       });
+//     }
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, message: error?.message });
+//   }
+// });
 
-app.delete("/users/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const result = await pool.query(
-      "DELETE FROM users WHERE id = $1 RETURNING *",
-      [id]
-    );
+// app.delete("/users/:id", async (req: Request, res: Response) => {
+//   try {
+//     const { id } = req.params;
+//     const result = await pool.query(
+//       "DELETE FROM users WHERE id = $1 RETURNING *",
+//       [id]
+//     );
 
-    if (result.rowCount === 0) {
-      res.status(404).json({ success: false, massage: "user not found" });
-    } else {
-      res
-        .status(202)
-        .json({ success: true, massage: "user deleted", data: result.rows[0] });
-    }
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error?.message });
-  }
-});
+//     if (result.rowCount === 0) {
+//       res.status(404).json({ success: false, massage: "user not found" });
+//     } else {
+//       res
+//         .status(202)
+//         .json({ success: true, massage: "user deleted", data: result.rows[0] });
+//     }
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, message: error?.message });
+//   }
+// });
 
 //  todos
-app.get("/user-posts", async (req: Request, res: Response) => {
-  try {
-    const { user_id } = req.query;
-    const result = await pool.query("SELECT * FROM posts WHERE user_id = $1", [
-      user_id,
-    ]);
-    if (result.rowCount === 0) {
-      res.status(404).json({ success: false, massage: "post not found" });
-    } else {
-      res.status(200).json({ success: true, data: result.rows });
-    }
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error?.message });
-  }
-});
+// app.get("/user-posts", async (req: Request, res: Response) => {
+//   try {
+//     const { user_id } = req.query;
+//     const result = await pool.query("SELECT * FROM posts WHERE user_id = $1", [
+//       user_id,
+//     ]);
+//     if (result.rowCount === 0) {
+//       res.status(404).json({ success: false, massage: "post not found" });
+//     } else {
+//       res.status(200).json({ success: true, data: result.rows });
+//     }
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, message: error?.message });
+//   }
+// });
 
 app.get("/posts", async (req: Request, res: Response) => {
   try {
