@@ -4,6 +4,8 @@ import path from "path";
 import { Pool } from "pg";
 import initDB, { pool } from "./config/db";
 import config from "./config";
+import logger from "./middleware/logger";
+import { userRoutes } from "./modules/users/user.routes";
 
 const app = express();
 const port = config.port;
@@ -14,7 +16,7 @@ app.use(express.json());
 
 initDB();
 
-app.get("/", async (req: Request, res: Response) => {
+app.get("/", logger, async (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
@@ -42,20 +44,20 @@ app.get("/users/:id", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/users", async (req: Request, res: Response) => {
-  try {
-    const { name, email, age, address } = req.body;
-    const result = await pool.query(
-      "INSERT INTO users (name, email, age, address) VALUES ($1, $2, $3, $4) RETURNING *",
-      [name, email, age, address]
-    );
-    res
-      .status(201)
-      .json({ success: true, massage: "user added", data: result.rows[0] });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error?.message });
-  }
-});
+// app.post("/users", async (req: Request, res: Response) => {
+//   try {
+//     const { name, email, age, address } = req.body;
+//     const result = await pool.query(
+//       "INSERT INTO users (name, email, age, address) VALUES ($1, $2, $3, $4) RETURNING *",
+//       [name, email, age, address]
+//     );
+//     res
+//       .status(201)
+//       .json({ success: true, massage: "user added", data: result.rows[0] });
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, message: error?.message });
+//   }
+// });
 
 app.put("/users/:id", async (req: Request, res: Response) => {
   try {
@@ -189,6 +191,10 @@ app.delete("/posts/:id", async (req: Request, res: Response) => {
   }
 });
 
+
+
+// moduler
+app.use("/users", userRoutes);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
