@@ -2,42 +2,16 @@ import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import path from "path";
 import { Pool } from "pg";
+import initDB, { pool } from "./config/db";
+import config from "./config";
 
-dotenv.config({ path: path.join(process.cwd(), ".env") });
 const app = express();
-const port = 5000;
+const port = config.port;
 
 // middlewires
 app.use(express.json());
 
-// postgress connection
-const pool = new Pool({
-  connectionString: process.env.CONNECTION_STRING,
-  ssl: { rejectUnauthorized: false },
-});
-const initDB = async () => {
-  await pool.query(`
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(25) NOT NULL,
-            email VARCHAR(50) NOT NULL UNIQUE,
-            age INTEGER,
-            address TEXT,
-            created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );`);
-  await pool.query(`
-        CREATE TABLE IF NOT EXISTS posts (
-            id SERIAL PRIMARY KEY,
-            user_id INT REFERENCES users(id) ON DELETE CASCADE,
-            title VARCHAR(100) NOT NULL,
-            description TEXT,
-            published BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );`);
-  console.log("postgress connection done");
-};
+
 initDB();
 
 app.get("/", async (req: Request, res: Response) => {
