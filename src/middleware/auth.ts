@@ -11,8 +11,14 @@ const auth = (...roles: string[]) => {
                 .status(401)
                 .json({ success: false, message: "Unauthorized" });
             }
-            const decoded = jwt.verify(token, config.jwt_secret_key as string);
-            req.user = decoded as JwtPayload;
+            const decoded = jwt.verify(token, config.jwt_secret_key as string) as JwtPayload;
+            req.user = decoded;
+
+            // check role
+            if(!roles.includes(decoded.role) && roles.length) {
+                return res.status(401).json({ success: false, message: "Unauthorized!!!" });
+            }
+
             next();
         } catch (error: any) {
             return res.status(401).json({ success: false, message: error?.message });
