@@ -13,6 +13,7 @@ const initDB = async () => {
             name VARCHAR(25) NOT NULL,
             email VARCHAR(50) NOT NULL UNIQUE,
             password TEXT NOT NULL,
+            role VARCHAR(10) NOT NULL,
             age INTEGER,
             address TEXT,
             created_at TIMESTAMP DEFAULT NOW(),
