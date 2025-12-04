@@ -3,12 +3,7 @@ import { postServices } from "./post.service";
 
 const createPost = async (req: Request, res: Response) => {
   try {
-    const { title, description, user_id } = req.body;
-    const result = await postServices.createPost(
-      title,
-      description,
-      Number(user_id)
-    );
+    const result = await postServices.createPost(req.body);
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error?.message });

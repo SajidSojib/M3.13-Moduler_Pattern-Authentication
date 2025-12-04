@@ -1,6 +1,7 @@
 import { pool } from "../../config/db";
 
-const createPost = async (title: string, description: string, user_id: number) => {
+const createPost = async (payload: Record<string, unknown>) => {
+    const { title, description, user_id } = payload;
     const result = await pool.query(
       "INSERT INTO posts (user_id, title, description) VALUES ($1,$2,$3) returning *",
       [user_id, title, description]
