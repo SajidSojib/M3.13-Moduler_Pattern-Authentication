@@ -4,6 +4,7 @@ import { authServices } from "./auth.service";
 const loginUser = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
+        console.log(email);
         const result = await authServices.loginUser(email, password);
         if (result) {
             res.status(200).json({ success: true, data: result, message: "Login successful" });
