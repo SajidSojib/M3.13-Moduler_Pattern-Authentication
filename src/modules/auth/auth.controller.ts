@@ -6,12 +6,12 @@ const loginUser = async (req: Request, res: Response) => {
         const { email, password} = req.body;
         const result = await authServices.loginUser(email, password);
         if (result) {
-            res.status(200).json({ success: true, data: result, message: "Login successful" });
+            return res.status(200).json({ success: true, data: result, message: "Login successful" });
         } else {
-            res.status(401).json({ success: false, message: "Invalid email or password" });
+            return res.status(401).json({ success: false, message: "Invalid email or password" });
         }
     } catch (error: any) {
-        res.status(500).json({ success: false, message: error?.message });
+        return res.status(500).json({ success: false, message: error?.message });
     }
 };
 

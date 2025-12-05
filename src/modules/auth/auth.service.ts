@@ -9,6 +9,7 @@ const loginUser = async (email: string, password: string) => {
         return null;
     }
     const user = result.rows[0];
+    delete user.password;
     const matchedPassword = await bcrypt.compare(password, user.password);
     if (!matchedPassword) {
         return null;

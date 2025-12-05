@@ -8,11 +8,16 @@ const createUser = async (payload: Record<string, unknown>) => {
       "INSERT INTO users (name, email, password, role, age, address) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [name, email, hashedPassword, role, age, address]
     );
+    delete result.rows[0].password;
     return result;
 };
 
 const getUsers = async () => {
-    const result = await pool.query("SELECT * FROM users");
+    const result = await pool.query("SELECT id, name, email, role, age, address, created_at, updated_at FROM users");
+    // const newRes = result.rows.map((user) => {
+    //     delete user.password;
+    //     return user;
+    // })
     return result;
 };
 
